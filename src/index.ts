@@ -37,14 +37,13 @@ function main() {
   let roomWallItems: RoomItem[];
   let clickedItem: RoomItem;
 
-  const onConnect = async (host: string) => {
+  const onConnect = async (host: string): Promise<void> => {
     const endpoint = Hotel.fromHost(host);
     if (!endpoint) return;
     furnitures = await FurniDataUtils.fetch(endpoint);
   };
 
-  const onObjects = async (hMessage: HMessage) => {
-    if (!status) return;
+  const onObjects = async (hMessage: HMessage): Promise<void> => {
     const items = HFloorItem.parse(hMessage.getPacket());
     roomFloorItems = items.map(({ id, typeId }) => ({
       id,
@@ -54,8 +53,7 @@ function main() {
     }));
   };
 
-  const onItems = async (hMessage: HMessage) => {
-    if (!status) return;
+  const onItems = async (hMessage: HMessage): Promise<void> => {
     const items = HWallItem.parse(hMessage.getPacket());
     roomWallItems = items.map(({ id, typeId }) => ({
       id,
@@ -65,8 +63,7 @@ function main() {
     }));
   };
 
-  const onUseFurniture = async (hMessage: HMessage) => {
-    if (!status) return;
+  const onUseFurniture = async (hMessage: HMessage): Promise<void> => {
     hMessage.blocked = true;
     const packet = hMessage.getPacket();
     const id = packet.readInteger();
@@ -78,8 +75,7 @@ function main() {
     sendNotification(message);
   };
 
-  const onUseWallItem = async (hMessage: HMessage) => {
-    if (!status) return;
+  const onUseWallItem = async (hMessage: HMessage): Promise<void> => {
     hMessage.blocked = true;
     const packet = hMessage.getPacket();
     const id = packet.readInteger();
@@ -91,16 +87,7 @@ function main() {
     sendNotification(message);
   };
 
-  // const onMarketplaceItemStats = async (hMessage: HMessage) => {
-  //   if (!status) return;
-  //   hMessage.blocked = true;
-  //   const packet = hMessage.getPacket();
-  //   const avg = packet.readInteger();
-  //   const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
-  //   sendNotification(message);
-  // };
-
-  const onChat = async (hMessage: HMessage) => {
+  const onChat = async (hMessage: HMessage): Promise<void> => {
     const packet = hMessage.getPacket();
     const message = packet.readString().toLocaleLowerCase();
 
@@ -111,7 +98,7 @@ function main() {
     }
   };
 
-  const sendNotification = async (message: string) => {
+  const sendNotification = async (message: string): Promise<void> => {
     const packet = new HPacket("Shout", HDirection.TOCLIENT);
     packet.appendInt(1234);
     packet.appendString(message);
@@ -122,7 +109,10 @@ function main() {
     ext.sendToClient(packet);
   };
 
-  const getMarketPlaceAverage = async ({ type, typeId }: Pick<RoomItem, "type" | "typeId">) => {
+  const getMarketPlaceAverage = async ({
+    type,
+    typeId,
+  }: Pick<RoomItem, "type" | "typeId">): Promise<string | undefined> => {
     const packet = new HPacket("GetMarketplaceItemStats", HDirection.TOSERVER);
     packet.appendInt(type);
     packet.appendInt(typeId);
@@ -136,14 +126,22 @@ function main() {
     return message;
   };
 
+  const isStatus = (fn: (hMessage: HMessage) => Promise<void>): ((hMessage: HMessage) => void) => {
+    return (hMessage: HMessage) => {
+      if (status) {
+        fn(hMessage);
+      }
+    };
+  };
+
   ext.on("connect", onConnect);
-  ext.interceptByNameOrHash(HDirection.TOCLIENT, "Objects", onObjects);
-  ext.interceptByNameOrHash(HDirection.TOCLIENT, "Items", onItems);
+  ext.interceptByNameOrHash(HDirection.TOCLIENT, "Objects", isStatus(onObjects));
+  ext.interceptByNameOrHash(HDirection.TOCLIENT, "Items", isStatus(onItems));
   ext.interceptByNameOrHash(HDirection.TOSERVER, "Chat", onChat);
   ext.interceptByNameOrHash(HDirection.TOSERVER, "Shout", onChat);
   ext.interceptByNameOrHash(HDirection.TOSERVER, "Whisper", onChat);
-  ext.interceptByNameOrHash(HDirection.TOSERVER, "UseFurniture", onUseFurniture);
-  ext.interceptByNameOrHash(HDirection.TOSERVER, "UseWallItem", onUseWallItem);
+  ext.interceptByNameOrHash(HDirection.TOSERVER, "UseFurniture", isStatus(onUseFurniture));
+  ext.interceptByNameOrHash(HDirection.TOSERVER, "UseWallItem", isStatus(onUseWallItem));
 }
 
 main();
