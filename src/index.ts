@@ -8,6 +8,8 @@ import {
   Hotel,
   HPacket,
   HWallItem,
+  GAsync,
+  AwaitingPacket,
 } from "gnode-api";
 import { name, description, version, author } from "../package.json";
 
@@ -27,6 +29,7 @@ interface RoomItem {
 function main() {
   const ext = new Extension({ name, description, version, author });
   ext.run();
+  const gAsync = new GAsync(ext);
 
   let status = false;
   let furnitures: FurniData;
@@ -70,7 +73,9 @@ function main() {
     const item = roomFloorItems.find((item) => item.id === id);
     if (!item) return;
     clickedItem = item;
-    requestMarketPlaceAverage(item);
+    const message = await getMarketPlaceAverage(item);
+    if (!message) return;
+    sendNotification(message);
   };
 
   const onUseWallItem = async (hMessage: HMessage) => {
@@ -81,17 +86,19 @@ function main() {
     const item = roomWallItems.find((item) => item.id === id);
     if (!item) return;
     clickedItem = item;
-    requestMarketPlaceAverage(item);
-  };
-
-  const onMarketplaceItemStats = async (hMessage: HMessage) => {
-    if (!status) return;
-    hMessage.blocked = true;
-    const packet = hMessage.getPacket();
-    const avg = packet.readInteger();
-    const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
+    const message = await getMarketPlaceAverage(item);
+    if (!message) return;
     sendNotification(message);
   };
+
+  // const onMarketplaceItemStats = async (hMessage: HMessage) => {
+  //   if (!status) return;
+  //   hMessage.blocked = true;
+  //   const packet = hMessage.getPacket();
+  //   const avg = packet.readInteger();
+  //   const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
+  //   sendNotification(message);
+  // };
 
   const onChat = async (hMessage: HMessage) => {
     const packet = hMessage.getPacket();
@@ -115,17 +122,23 @@ function main() {
     ext.sendToClient(packet);
   };
 
-  const requestMarketPlaceAverage = ({ type, typeId }: Pick<RoomItem, "type" | "typeId">) => {
+  const getMarketPlaceAverage = async ({ type, typeId }: Pick<RoomItem, "type" | "typeId">) => {
     const packet = new HPacket("GetMarketplaceItemStats", HDirection.TOSERVER);
     packet.appendInt(type);
     packet.appendInt(typeId);
     ext.sendToServer(packet);
+    const awaitedPacket = await gAsync.awaitPacket(
+      new AwaitingPacket("MarketplaceItemStats", HDirection.TOCLIENT, 1000)
+    );
+    if (!awaitedPacket) return;
+    const avg = awaitedPacket.readInteger();
+    const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
+    return message;
   };
 
   ext.on("connect", onConnect);
   ext.interceptByNameOrHash(HDirection.TOCLIENT, "Objects", onObjects);
   ext.interceptByNameOrHash(HDirection.TOCLIENT, "Items", onItems);
-  ext.interceptByNameOrHash(HDirection.TOCLIENT, "MarketplaceItemStats", onMarketplaceItemStats);
   ext.interceptByNameOrHash(HDirection.TOSERVER, "Chat", onChat);
   ext.interceptByNameOrHash(HDirection.TOSERVER, "Shout", onChat);
   ext.interceptByNameOrHash(HDirection.TOSERVER, "Whisper", onChat);
