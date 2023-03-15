@@ -1,0 +1,29 @@
+{
+  "name": "average-checker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "dev": "tsc watch src/index.ts -p 9092",
+    "start": "node dist/src/index.js",
+    "build": "tsc",
+    "changeset:new": "changeset",
+    "changeset:version": "changeset version",
+    "store:build": "pnpm run build && tsx src/store.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@changesets/cli": "^2.26.0",
+    "@types/fs-extra": "^11.0.1",
+    "@types/node": "^18.15.3",
+    "fs-extra": "^11.1.0",
+    "tsx": "^3.12.5",
+    "typescript": "^4.9.5",
+    "zip-a-folder": "^1.1.5"
+  },
+  "dependencies": {
+    "gnode-api": "^0.2.14"
+  }
+}
