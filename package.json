@@ -10,6 +10,7 @@
     "changeset:new": "changeset",
     "changeset:version": "changeset version",
     "store:build": "pnpm run build && tsx src/store.ts",
+    "lint": "pnpm run prettier:fix && pnpm run lint:fix",
     "lint:check": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "prettier:check": "prettier --config .prettierrc src/**/*.ts --check",
