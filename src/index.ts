@@ -53,7 +53,7 @@ function main() {
       id,
       typeId,
       type: 2,
-      name: furnitures.getFloorItemByTypeId(typeId).name,
+      name: furnitures.getWallItemByTypeId(typeId).name,
     }));
   };
 
