@@ -1,8 +1,9 @@
-import { Extension, FurniDataUtils, HDirection, HFloorItem, Hotel, HPacket, HWallItem, } from "gnode-api";
+import { Extension, FurniDataUtils, HDirection, HFloorItem, Hotel, HPacket, HWallItem, GAsync, AwaitingPacket, } from "gnode-api";
 import { name, description, version, author } from "../package.json";
 function main() {
     const ext = new Extension({ name, description, version, author });
     ext.run();
+    const gAsync = new GAsync(ext);
     let status = false;
     let furnitures;
     let roomFloorItems;
@@ -15,8 +16,6 @@ function main() {
         furnitures = await FurniDataUtils.fetch(endpoint);
     };
     const onObjects = async (hMessage) => {
-        if (!status)
-            return;
         const items = HFloorItem.parse(hMessage.getPacket());
         roomFloorItems = items.map(({ id, typeId }) => ({
             id,
@@ -26,19 +25,15 @@ function main() {
         }));
     };
     const onItems = async (hMessage) => {
-        if (!status)
-            return;
         const items = HWallItem.parse(hMessage.getPacket());
         roomWallItems = items.map(({ id, typeId }) => ({
             id,
             typeId,
             type: 2,
-            name: furnitures.getFloorItemByTypeId(typeId).name,
+            name: furnitures.getWallItemByTypeId(typeId).name,
         }));
     };
     const onUseFurniture = async (hMessage) => {
-        if (!status)
-            return;
         hMessage.blocked = true;
         const packet = hMessage.getPacket();
         const id = packet.readInteger();
@@ -46,11 +41,13 @@ function main() {
         if (!item)
             return;
         clickedItem = item;
-        requestMarketPlaceAverage(item);
+        const avg = await getMarketPlaceAverage(item);
+        if (!avg)
+            return;
+        const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
+        sendNotification(message);
     };
     const onUseWallItem = async (hMessage) => {
-        if (!status)
-            return;
         hMessage.blocked = true;
         const packet = hMessage.getPacket();
         const id = packet.readInteger();
@@ -58,14 +55,9 @@ function main() {
         if (!item)
             return;
         clickedItem = item;
-        requestMarketPlaceAverage(item);
-    };
-    const onMarketplaceItemStats = async (hMessage) => {
-        if (!status)
+        const avg = await getMarketPlaceAverage(item);
+        if (!avg)
             return;
-        hMessage.blocked = true;
-        const packet = hMessage.getPacket();
-        const avg = packet.readInteger();
         const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
         sendNotification(message);
     };
@@ -88,20 +80,31 @@ function main() {
         packet.appendInt(-1);
         ext.sendToClient(packet);
     };
-    const requestMarketPlaceAverage = ({ type, typeId }) => {
+    const getMarketPlaceAverage = async ({ type, typeId, }) => {
         const packet = new HPacket("GetMarketplaceItemStats", HDirection.TOSERVER);
         packet.appendInt(type);
         packet.appendInt(typeId);
         ext.sendToServer(packet);
+        const awaitedPacket = await gAsync.awaitPacket(new AwaitingPacket("MarketplaceItemStats", HDirection.TOCLIENT, 1000));
+        if (!awaitedPacket)
+            return;
+        const avg = awaitedPacket.readInteger();
+        return avg;
+    };
+    const isStatus = (fn) => {
+        return (hMessage) => {
+            if (status) {
+                fn(hMessage);
+            }
+        };
     };
     ext.on("connect", onConnect);
-    ext.interceptByNameOrHash(HDirection.TOCLIENT, "Objects", onObjects);
-    ext.interceptByNameOrHash(HDirection.TOCLIENT, "Items", onItems);
-    ext.interceptByNameOrHash(HDirection.TOCLIENT, "MarketplaceItemStats", onMarketplaceItemStats);
+    ext.interceptByNameOrHash(HDirection.TOCLIENT, "Objects", isStatus(onObjects));
+    ext.interceptByNameOrHash(HDirection.TOCLIENT, "Items", isStatus(onItems));
     ext.interceptByNameOrHash(HDirection.TOSERVER, "Chat", onChat);
     ext.interceptByNameOrHash(HDirection.TOSERVER, "Shout", onChat);
     ext.interceptByNameOrHash(HDirection.TOSERVER, "Whisper", onChat);
-    ext.interceptByNameOrHash(HDirection.TOSERVER, "UseFurniture", onUseFurniture);
-    ext.interceptByNameOrHash(HDirection.TOSERVER, "UseWallItem", onUseWallItem);
+    ext.interceptByNameOrHash(HDirection.TOSERVER, "UseFurniture", isStatus(onUseFurniture));
+    ext.interceptByNameOrHash(HDirection.TOSERVER, "UseWallItem", isStatus(onUseWallItem));
 }
 main();

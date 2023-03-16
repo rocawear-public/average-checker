@@ -10,6 +10,7 @@ export async function main() {
     description: root.description,
     version: root.version,
     updateDate: "",
+    framework: { ...extension.framework, version: root.dependencies["gnode-api"].replace("^", "") },
   };
 
   try {
