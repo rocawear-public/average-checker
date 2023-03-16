@@ -108,7 +108,10 @@ function main() {
   const getMarketPlaceAverage = async ({
     type,
     typeId,
-  }: Pick<RoomItem, "type" | "typeId">): Promise<number | undefined> => {
+  }: {
+    type: number;
+    typeId: number;
+  }): Promise<number | undefined> => {
     const packet = new HPacket("GetMarketplaceItemStats", HDirection.TOSERVER);
     packet.appendInt(type);
     packet.appendInt(typeId);
