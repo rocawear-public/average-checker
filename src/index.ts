@@ -13,12 +13,6 @@ import {
 } from "gnode-api";
 import { name, description, version, author } from "../package.json";
 
-declare module "gnode-api" {
-  namespace FurniDataUtils {
-    export function fetch(hotel: Hotel): Promise<FurniData>;
-  }
-}
-
 interface RoomItem {
   id: number;
   typeId: number;

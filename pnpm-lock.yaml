@@ -5,13 +5,13 @@ specifiers:
   '@types/fs-extra': ^11.0.1
   '@types/node': ^18.15.3
   fs-extra: ^11.1.0
-  gnode-api: ^0.2.14
+  gnode-api: ^0.2.15
   tsx: ^3.12.5
   typescript: ^4.9.5
   zip-a-folder: ^1.1.5
 
 dependencies:
-  gnode-api: 0.2.14
+  gnode-api: 0.2.15
 
 devDependencies:
   '@changesets/cli': 2.26.0
@@ -1231,8 +1231,8 @@ packages:
       slash: 3.0.0
     dev: true
 
-  /gnode-api/0.2.14:
-    resolution: {integrity: sha512-bOg1OcFBUZ4pSx3eb3RFDufM3tetXdUoi0HR39tYTlfepiNN+6upAFjOVy+asdU1zAZ9k0ikPLveoOBmEeEDeQ==}
+  /gnode-api/0.2.15:
+    resolution: {integrity: sha512-VJhaq/eV+pjUWRCLeWdc6H4TqvSuC57IkJc927b3SAGGSIugkibsFFMcImnJIiwFErMymW6+moyMAxlGSPTlVg==}
     engines: {node: '>=15.0.0'}
     dependencies:
       '@types/node': 16.18.16

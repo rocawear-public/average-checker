@@ -6,7 +6,10 @@ import extension from "../store/extension.json";
 export async function main() {
   const ext = {
     ...extension,
+    title: root.name,
+    description: root.description,
     version: root.version,
+    updateDate: "",
   };
 
   try {
