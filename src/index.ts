@@ -64,8 +64,9 @@ function main() {
     const item = roomFloorItems.find((item) => item.id === id);
     if (!item) return;
     clickedItem = item;
-    const message = await getMarketPlaceAverage(item);
-    if (!message) return;
+    const avg = await getMarketPlaceAverage(item);
+    if (!avg) return;
+    const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
     sendNotification(message);
   };
 
@@ -76,8 +77,9 @@ function main() {
     const item = roomWallItems.find((item) => item.id === id);
     if (!item) return;
     clickedItem = item;
-    const message = await getMarketPlaceAverage(item);
-    if (!message) return;
+    const avg = await getMarketPlaceAverage(item);
+    if (!avg) return;
+    const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
     sendNotification(message);
   };
 
@@ -106,7 +108,7 @@ function main() {
   const getMarketPlaceAverage = async ({
     type,
     typeId,
-  }: Pick<RoomItem, "type" | "typeId">): Promise<string | undefined> => {
+  }: Pick<RoomItem, "type" | "typeId">): Promise<number | undefined> => {
     const packet = new HPacket("GetMarketplaceItemStats", HDirection.TOSERVER);
     packet.appendInt(type);
     packet.appendInt(typeId);
@@ -116,8 +118,7 @@ function main() {
     );
     if (!awaitedPacket) return;
     const avg = awaitedPacket.readInteger();
-    const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
-    return message;
+    return avg;
   };
 
   const isStatus = (fn: (hMessage: HMessage) => Promise<void>): ((hMessage: HMessage) => void) => {
