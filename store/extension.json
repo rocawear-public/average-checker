@@ -4,7 +4,7 @@
   "version": "1.0.2",
   "categories": [""],
   "source": { "source": "", "readme": "", "releases": "" },
-  "readme": "",
+  "readme": "https://github.com/rocawear-public/average-checker/blob/master/README.md",
   "releases": "",
   "stable": true,
   "language": "js",
