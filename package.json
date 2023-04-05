@@ -1,6 +1,6 @@
 {
   "name": "average-checker",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Click item to see marketplace average! USAGE: !avg to toggle it ON/OFF",
   "main": "dist/src/index.js",
   "type": "module",
