@@ -11,7 +11,7 @@ import {
   GAsync,
   AwaitingPacket,
 } from "gnode-api";
-import { name, description, version, author } from "../package.json";
+import extensionInfo from "../package.json" assert { type: "json" };
 
 interface RoomItem {
   id: number;
@@ -21,7 +21,7 @@ interface RoomItem {
 }
 
 function main() {
-  const ext = new Extension({ name, description, version, author });
+  const ext = new Extension(extensionInfo);
   ext.run();
   const gAsync = new GAsync(ext);
 

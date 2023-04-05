@@ -3,6 +3,7 @@
   "version": "1.0.3",
   "description": "Click item to see marketplace average! USAGE: !avg to toggle it ON/OFF",
   "main": "dist/src/index.js",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts -p 9092",
     "start": "node dist/src/index.js",
