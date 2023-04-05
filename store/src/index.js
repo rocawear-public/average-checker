@@ -1,5 +1,5 @@
 import { Extension, FurniDataUtils, HDirection, HFloorItem, Hotel, HPacket, HWallItem, GAsync, AwaitingPacket, } from "gnode-api";
-import * as extensionInfo from "../package.json" assert { type: "json" };
+import extensionInfo from "../package.json" assert { type: "json" };
 function main() {
     const ext = new Extension(extensionInfo);
     ext.run();
