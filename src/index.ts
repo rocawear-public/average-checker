@@ -34,11 +34,13 @@ function main() {
   const onConnect = async (host: string): Promise<void> => {
     const endpoint = Hotel.fromHost(host);
     if (!endpoint) return;
+
     furnitures = await FurniDataUtils.fetch(endpoint);
   };
 
-  const onObjects = async (hMessage: HMessage): Promise<void> => {
+  const onObjects = (hMessage: HMessage): void => {
     const items = HFloorItem.parse(hMessage.getPacket());
+
     roomFloorItems = items.map(({ id, typeId }) => ({
       id,
       typeId,
@@ -47,8 +49,9 @@ function main() {
     }));
   };
 
-  const onItems = async (hMessage: HMessage): Promise<void> => {
+  const onItems = (hMessage: HMessage): void => {
     const items = HWallItem.parse(hMessage.getPacket());
+
     roomWallItems = items.map(({ id, typeId }) => ({
       id,
       typeId,
@@ -61,11 +64,14 @@ function main() {
     hMessage.blocked = true;
     const packet = hMessage.getPacket();
     const id = packet.readInteger();
+
     const item = roomFloorItems.find((item) => item.id === id);
     if (!item) return;
+
     clickedItem = item;
     const avg = await getMarketPlaceAverage(item);
     if (!avg) return;
+
     const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
     sendNotification(message);
   };
@@ -74,27 +80,31 @@ function main() {
     hMessage.blocked = true;
     const packet = hMessage.getPacket();
     const id = packet.readInteger();
+
     const item = roomWallItems.find((item) => item.id === id);
     if (!item) return;
+
     clickedItem = item;
     const avg = await getMarketPlaceAverage(item);
+
     if (!avg) return;
     const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
     sendNotification(message);
   };
 
-  const onChat = async (hMessage: HMessage): Promise<void> => {
+  const onChat = (hMessage: HMessage): void => {
     const packet = hMessage.getPacket();
     const message = packet.readString().toLocaleLowerCase();
 
     if (message.startsWith("!avg")) {
       hMessage.blocked = true;
       status = !status;
-      sendNotification(`Average checker ${status ? "on" : "off"}!`);
+      const message = `Average checker ${status ? "on" : "off"}!`;
+      sendNotification(message);
     }
   };
 
-  const sendNotification = async (message: string): Promise<void> => {
+  const sendNotification = (message: string) => {
     const packet = new HPacket("Shout", HDirection.TOCLIENT);
     packet.appendInt(1234);
     packet.appendString(message);
@@ -102,6 +112,7 @@ function main() {
     packet.appendInt(0);
     packet.appendInt(0);
     packet.appendInt(-1);
+
     ext.sendToClient(packet);
   };
 
@@ -115,11 +126,14 @@ function main() {
     const packet = new HPacket("GetMarketplaceItemStats", HDirection.TOSERVER);
     packet.appendInt(type);
     packet.appendInt(typeId);
+
     ext.sendToServer(packet);
+
     const awaitedPacket = await gAsync.awaitPacket(
       new AwaitingPacket("MarketplaceItemStats", HDirection.TOCLIENT, 1000)
     );
     if (!awaitedPacket) return;
+
     const avg = awaitedPacket.readInteger();
     return avg;
   };
