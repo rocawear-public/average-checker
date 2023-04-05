@@ -11,7 +11,7 @@ import {
   GAsync,
   AwaitingPacket,
 } from "gnode-api";
-import extensionInfo from "../package.json" assert { type: "json" };
+import * as extensionInfo from "../package.json" assert { type: "json" };
 
 interface RoomItem {
   id: number;

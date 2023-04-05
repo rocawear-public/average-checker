@@ -1,7 +1,7 @@
 import { Extension, FurniDataUtils, HDirection, HFloorItem, Hotel, HPacket, HWallItem, GAsync, AwaitingPacket, } from "gnode-api";
-import { name, description, version, author } from "../package.json";
+import * as extensionInfo from "../package.json" assert { type: "json" };
 function main() {
-    const ext = new Extension({ name, description, version, author });
+    const ext = new Extension(extensionInfo);
     ext.run();
     const gAsync = new GAsync(ext);
     let status = false;
