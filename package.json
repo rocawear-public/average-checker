@@ -1,7 +1,7 @@
 {
   "name": "average-checker",
   "version": "1.0.3",
-  "description": "Click item to see marketplace average!",
+  "description": "Click item to see marketplace average! USAGE: !avg to toggle it ON/OFF",
   "main": "dist/src/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts -p 9092",
