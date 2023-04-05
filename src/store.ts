@@ -1,4 +1,4 @@
-import { copy, writeJson } from "fs-extra";
+import { copy, move, remove, writeJson } from "fs-extra";
 import { zip } from "zip-a-folder";
 import root from "../package.json";
 import extension from "../store/extension.json";
@@ -7,16 +7,16 @@ export async function main() {
   const ext = {
     ...extension,
     title: root.name,
-    description: root.description,
     version: root.version,
-    updateDate: "",
     framework: { ...extension.framework, version: root.dependencies["gnode-api"].replace("^", "") },
   };
 
   try {
-    await writeJson("./store/extension.json", ext);
+    await writeJson("store/extension.json", ext);
     await copy("dist", "store");
-    await zip("store", "./store/extension.zip");
+    await remove("store/extension.zip");
+    await zip("store", "extension.zip");
+    await move("extension.zip", "store/extension.zip");
     console.log("Successfully created!");
   } catch (err) {
     if (err instanceof Error) {
