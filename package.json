@@ -1,10 +1,10 @@
 {
   "name": "average-checker",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Click item to see marketplace average!",
   "main": "dist/src/index.js",
   "scripts": {
-    "dev": "tsc watch src/index.ts -p 9092",
+    "dev": "tsx watch src/index.ts -p 9092",
     "start": "node dist/src/index.js",
     "build": "tsc",
     "changeset:new": "changeset",

@@ -99,8 +99,8 @@ function main() {
         };
     };
     ext.on("connect", onConnect);
-    ext.interceptByNameOrHash(HDirection.TOCLIENT, "Objects", isStatus(onObjects));
-    ext.interceptByNameOrHash(HDirection.TOCLIENT, "Items", isStatus(onItems));
+    ext.interceptByNameOrHash(HDirection.TOCLIENT, "Objects", onObjects);
+    ext.interceptByNameOrHash(HDirection.TOCLIENT, "Items", onItems);
     ext.interceptByNameOrHash(HDirection.TOSERVER, "Chat", onChat);
     ext.interceptByNameOrHash(HDirection.TOSERVER, "Shout", onChat);
     ext.interceptByNameOrHash(HDirection.TOSERVER, "Whisper", onChat);
