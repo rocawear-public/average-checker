@@ -15,7 +15,7 @@ function main() {
             return;
         furnitures = await FurniDataUtils.fetch(endpoint);
     };
-    const onObjects = async (hMessage) => {
+    const onObjects = (hMessage) => {
         const items = HFloorItem.parse(hMessage.getPacket());
         roomFloorItems = items.map(({ id, typeId }) => ({
             id,
@@ -24,7 +24,7 @@ function main() {
             name: furnitures.getFloorItemByTypeId(typeId).name,
         }));
     };
-    const onItems = async (hMessage) => {
+    const onItems = (hMessage) => {
         const items = HWallItem.parse(hMessage.getPacket());
         roomWallItems = items.map(({ id, typeId }) => ({
             id,
@@ -61,16 +61,17 @@ function main() {
         const message = `${clickedItem.name} marketplace average is ${avg} coins!`;
         sendNotification(message);
     };
-    const onChat = async (hMessage) => {
+    const onChat = (hMessage) => {
         const packet = hMessage.getPacket();
         const message = packet.readString().toLocaleLowerCase();
         if (message.startsWith("!avg")) {
             hMessage.blocked = true;
             status = !status;
-            sendNotification(`Average checker ${status ? "on" : "off"}!`);
+            const message = `Average checker ${status ? "on" : "off"}!`;
+            sendNotification(message);
         }
     };
-    const sendNotification = async (message) => {
+    const sendNotification = (message) => {
         const packet = new HPacket("Shout", HDirection.TOCLIENT);
         packet.appendInt(1234);
         packet.appendString(message);
