@@ -6,7 +6,8 @@
     "type": "module",
     "scripts": {
         "dev": "tsx watch src/index.ts -p 9092",
-        "start": "node dist/src/index.js",
+        "start": "node src/index.js",
+        "start:dev": "node dist/src/index.js",
         "build": "tsc",
         "changeset:new": "changeset",
         "changeset:version": "changeset version",
